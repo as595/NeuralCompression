@@ -30,14 +30,26 @@ Configuration files can be found in the [`configs` directory]().
 
 Performance is evaluated on a reserved test set in each case. No hyper-parameter tuning is performed. 
 
+<ins>MNIST</ins>
+
 | Model | Data | Reconstruction Accuracy |
 | :---:   | :---: | :---: |
 | AE | MNIST  | |
 | VAE | MNIST | | 
 | VQ-VAE | MNIST | |  
+
+<ins>CIFAR-10</ins>
+
+| Model | Data | Reconstruction Accuracy |
+| :---:   | :---: | :---: |
 | AE | CIFAR-10  | |
 | VAE | CIFAR-10 | | 
 | VQ-VAE | CIFAR-10 | |  
+
+<ins>RGZ</ins>
+
+| Model | Data | Reconstruction Accuracy |
+| :---:   | :---: | :---: |
 | AE | RGZ  | |
 | VAE | RGZ | | 
 | VQ-VAE | RGZ | |  
