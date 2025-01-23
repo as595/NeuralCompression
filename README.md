@@ -28,6 +28,8 @@ Configuration files can be found in the [`configs` directory]().
 
 ### Performance
 
+Performance is evaluated on a reserved test set in each case. No hyper-parameter tuning is performed. 
+
 <ins>MNIST</ins>
 
 | Model | Data | Reconstruction Accuracy |
