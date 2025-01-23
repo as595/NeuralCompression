@@ -34,7 +34,7 @@ Performance is evaluated on a reserved test set in each case. No hyper-parameter
 
 | Model | Data | Reconstruction Accuracy |
 | :---:   | :---: | :---: |
-| AE | MNIST  | ![alt text](http://url/to/img.png) |
+| AE | MNIST  | ![alt text](./images/ae_mnist.png) |
 | VAE | MNIST | | 
 | VQ-VAE | MNIST | |  
 
