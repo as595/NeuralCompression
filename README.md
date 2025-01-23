@@ -42,7 +42,7 @@ Performance is evaluated on a reserved test set in each case. No hyper-parameter
 
 | Model | Data | Reconstruction Accuracy |Example Output |
 | :---:   | :---: | :---: |:---: |
-| AE | CIFAR-10  | || ![alt text](./images/ae_mnist.png) |
+| AE | CIFAR-10  | | ![alt text](./images/ae_mnist.png) |
 | VAE | CIFAR-10 | | |
 | VQ-VAE | CIFAR-10 | ||  
 
@@ -50,7 +50,7 @@ Performance is evaluated on a reserved test set in each case. No hyper-parameter
 
 | Model | Data | Reconstruction Accuracy |Example Output |
 | :---:   | :---: | :---: |:---: |
-| AE | RGZ  | || ![alt text](./images/ae_mnist.png) |
+| AE | RGZ  | | ![alt text](./images/ae_mnist.png) |
 | VAE | RGZ | | |
 | VQ-VAE | RGZ | | |  
 
