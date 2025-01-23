@@ -41,7 +41,7 @@ Performance is evaluated on a reserved test set in each case. No hyper-parameter
 | Model | Data | Reconstruction Loss | Example Output |
 | :---:   | :---: | :---: | :---: |
 | AE | MNIST  | 0.7352 | ![alt text](./images/ae_mnist.png) |
-| VAE | MNIST | 3.18087 | |
+| VAE | MNIST | 3.18087 | ![alt text](./images/vae_mnist.png) |
 | VQ-VAE | MNIST | |  |
 
 <ins>CIFAR-10</ins>
