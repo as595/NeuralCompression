@@ -38,7 +38,7 @@ Performance is evaluated on a reserved test set in each case. No hyper-parameter
 
 <ins>MNIST</ins>
 
-| Model | Data | Reconstruction Loss | Example Output |
+| Model | Data | Reconstruction Loss | Example Images (top: input; bottom: output) |
 | :---:   | :---: | :---: | :---: |
 | AE | MNIST  | 0.7352 | ![alt text](./images/ae_mnist.png) |
 | VAE | MNIST | 3.18087 | ![alt text](./images/vae_mnist.png) |
@@ -46,7 +46,7 @@ Performance is evaluated on a reserved test set in each case. No hyper-parameter
 
 <ins>CIFAR-10</ins>
 
-| Model | Data | Reconstruction Loss |Example Output |
+| Model | Data | Reconstruction Loss |Example Images (top: input; bottom: output) |
 | :---:   | :---: | :---: |:---: |
 | AE | CIFAR-10  | 7.16751 | ![alt text](./images/ae_cifar.png) |
 | VAE | CIFAR-10 | | |
@@ -54,7 +54,7 @@ Performance is evaluated on a reserved test set in each case. No hyper-parameter
 
 <ins>RGZ</ins>
 
-| Model | Data | Reconstruction Loss |Example Output |
+| Model | Data | Reconstruction Loss |Example Images (top: input; bottom: output) |
 | :---:   | :---: | :---: |:---: |
 | AE | RGZ  | | ![alt text](./images/ae_mnist.png) |
 | VAE | RGZ | | |
