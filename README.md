@@ -1,5 +1,8 @@
 # NeuralCompression
-AE, VAE, VQVAE comparison for task-oriented compression
+
+Evaluation of neural methods for task-oriented compression of radio astronomy data. 
+
+This implementation uses [PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/) and [Weights and Biases](https://wandb.ai).
 
 ---
 
@@ -23,12 +26,32 @@ Configuration files can be found in the [`configs` directory]().
 
 ---
 
-### Benchmarks
+### Performance
 
-<ins>Performance</ins>
+<ins>MNIST</ins>
 
 | Model | Data | Reconstruction Accuracy |
 | :---:   | :---: | :---: |
 | AE | MNIST  | |
 | VAE | MNIST | | 
 | VQ-VAE | MNIST | |  
+
+<ins>CIFAR-10</ins>
+
+| Model | Data | Reconstruction Accuracy |
+| :---:   | :---: | :---: |
+| AE | CIFAR-10  | |
+| VAE | CIFAR-10 | | 
+| VQ-VAE | CIFAR-10 | |  
+
+<ins>RGZ</ins>
+
+| Model | Data | Reconstruction Accuracy |
+| :---:   | :---: | :---: |
+| AE | RGZ  | |
+| VAE | RGZ | | 
+| VQ-VAE | RGZ | |  
+
+---
+
+
