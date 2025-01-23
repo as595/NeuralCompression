@@ -71,7 +71,7 @@ if __name__ == "__main__":
 			}
 
 	# initialise the wandb logger and name your wandb project
-	wandb_logger = pl.loggers.WandbLogger(project='compression', log_model=True, config=config)
+	wandb_logger = pl.loggers.WandbLogger(project='neural_compression', log_model=True, config=config)
 	wandb_config = wandb.config
 
 # -----------------------------------------------------------------------------

@@ -70,6 +70,8 @@ class Compressor(pl.LightningModule):
         x_test, _ = batch
         if mode == 'val' and batch_idx == 0:
             self._log_generate_images(x_test, mode)
+        if mode == 'test' and batch_idx == 0:
+            self._log_generate_images(x_test, mode)
 
         loss, recon_loss = self._get_losses(batch)
 
@@ -79,6 +81,10 @@ class Compressor(pl.LightningModule):
         return
 
     def _log_generate_images(self, inputs, mode):
+
+        if mode=='test':
+            # select first 15 images from test set
+            inputs = inputs[:15,:,:]
 
         size = inputs.size()[-1]
         n = inputs.size()[0]
