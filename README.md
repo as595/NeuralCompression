@@ -35,11 +35,9 @@ Performance is evaluated on a reserved test set in each case. No hyper-parameter
 | AE | MNIST  | |
 | VAE | MNIST | | 
 | VQ-VAE | MNIST | |  
-| :---:   | :---: | :---: |
 | AE | CIFAR-10  | |
 | VAE | CIFAR-10 | | 
 | VQ-VAE | CIFAR-10 | |  
-| :---:   | :---: | :---: |
 | AE | RGZ  | |
 | VAE | RGZ | | 
 | VQ-VAE | RGZ | |  
