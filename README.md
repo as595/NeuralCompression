@@ -26,33 +26,39 @@ Configuration files can be found in the [`configs` directory]().
 
 ---
 
+### Models
+
+All models have the encoder-decoder architecture defined in [van den Oord+ 2017](https://arxiv.org/pdf/1711.00937).
+
+---
+
 ### Performance
 
 Performance is evaluated on a reserved test set in each case. No hyper-parameter tuning is performed. 
 
 <ins>MNIST</ins>
 
-| Model | Data | Reconstruction Accuracy |
-| :---:   | :---: | :---: |
-| AE | MNIST  | ![alt text](http://url/to/img.png) |
-| VAE | MNIST | | 
-| VQ-VAE | MNIST | |  
+| Model | Data | Reconstruction Accuracy | Example Output |
+| :---:   | :---: | :---: | :---: |
+| AE | MNIST  | | ![alt text](./images/ae_mnist.png) |
+| VAE | MNIST | | |
+| VQ-VAE | MNIST | |  |
 
 <ins>CIFAR-10</ins>
 
-| Model | Data | Reconstruction Accuracy |
-| :---:   | :---: | :---: |
-| AE | CIFAR-10  | |
-| VAE | CIFAR-10 | | 
-| VQ-VAE | CIFAR-10 | |  
+| Model | Data | Reconstruction Accuracy |Example Output |
+| :---:   | :---: | :---: |:---: |
+| AE | CIFAR-10  | | ![alt text](./images/ae_mnist.png) |
+| VAE | CIFAR-10 | | |
+| VQ-VAE | CIFAR-10 | ||  
 
 <ins>RGZ</ins>
 
-| Model | Data | Reconstruction Accuracy |
-| :---:   | :---: | :---: |
-| AE | RGZ  | |
-| VAE | RGZ | | 
-| VQ-VAE | RGZ | |  
+| Model | Data | Reconstruction Accuracy |Example Output |
+| :---:   | :---: | :---: |:---: |
+| AE | RGZ  | | ![alt text](./images/ae_mnist.png) |
+| VAE | RGZ | | |
+| VQ-VAE | RGZ | | |  
 
 ---
 
