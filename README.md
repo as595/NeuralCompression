@@ -26,6 +26,12 @@ Configuration files can be found in the [`configs` directory]().
 
 ---
 
+### Models
+
+All models have the encoder-decoder architecture defined in [van den Oord+ 2017](https://arxiv.org/pdf/1711.00937).
+
+---
+
 ### Performance
 
 Performance is evaluated on a reserved test set in each case. No hyper-parameter tuning is performed. 
