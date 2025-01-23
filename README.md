@@ -8,7 +8,7 @@ To run:
 python main.py --config configs/baseline.cfg
 ```
 
-Confirguration files can be found in the [`configs` directory]().
+Configuration files can be found in the [`configs` directory]().
 
 <ins>Config Files</ins>
 
