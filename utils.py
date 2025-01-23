@@ -60,21 +60,39 @@ def pairwise(iterable):
 # -----------------------------------------------------------
 
 class VectorQuantization(Function):
+
+    """
+    Compute the Euclidean distance between the embedding and the codebook:
+    d_ij^2 = ||x_i - x_j||^2
+           = (x_i - x_j)^T(x_i - x_j)
+           = x_i^2 + x_j^2 - 2 x_i^T x_j
+           = torch.addmm(x_i^2 + x_j^2, x_j, x_i^T, alpha=-2.0, beta=1.0)
+           
+    where:
+     - x_i : codebook, e_j
+     - x_j : inputs, z_e_x
+    """
+
     @staticmethod
     def forward(ctx, inputs, codebook):
         with torch.no_grad():
+        
             embedding_size = codebook.size(1)
             inputs_size = inputs.size()
             inputs_flatten = inputs.view(-1, embedding_size)
 
+            # x_i^2 ; x_j^2
             codebook_sqr = torch.sum(codebook ** 2, dim=1)
             inputs_sqr = torch.sum(inputs_flatten ** 2, dim=1, keepdim=True)
 
-            # Compute the distances to the codebook
+            # Euclidean distance calculation:
             distances = torch.addmm(codebook_sqr + inputs_sqr,
                 inputs_flatten, codebook.t(), alpha=-2.0, beta=1.0)
 
+            # find argmin_j d_ij^2
             _, indices_flatten = torch.min(distances, dim=1)
+            
+            # 
             indices = indices_flatten.view(*inputs_size[:-1])
             ctx.mark_non_differentiable(indices)
 
