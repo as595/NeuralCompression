@@ -48,7 +48,7 @@ Performance is evaluated on a reserved test set in each case. No hyper-parameter
 
 | Model | Data | Reconstruction Loss |Example Output |
 | :---:   | :---: | :---: |:---: |
-| AE | CIFAR-10  | | ![alt text](./images/ae_cifar.png) |
+| AE | CIFAR-10  | 7.16751 | ![alt text](./images/ae_cifar.png) |
 | VAE | CIFAR-10 | | |
 | VQ-VAE | CIFAR-10 | ||  
 
