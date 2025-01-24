@@ -42,7 +42,7 @@ Performance is evaluated on a reserved test set in each case. No hyper-parameter
 | :---:   | :---: | :---: | :---: |
 | AE | MNIST  | 0.7352 | ![alt text](./images/ae_mnist.png) |
 | VAE | MNIST | 3.18087 | ![alt text](./images/vae_mnist.png) |
-| VQ-VAE | MNIST | |  |
+| VQ-VAE | MNIST | | ![alt text](./images/vqvae_mnist.png) |
 
 <ins>CIFAR-10</ins>
 
