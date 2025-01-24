@@ -107,10 +107,11 @@ class ResBlock(nn.Module):
 # --------------------------------------------------------------------------
         
 class OordEncoder(nn.Module):
-    def __init__(self, input_dim, dim):
+    def __init__(self, n_chan, dim):
         super().__init__()
+        
         self.layers = nn.Sequential(
-            nn.Conv2d(1, dim, 4, 2, 1),
+            nn.Conv2d(n_chan, dim, 4, 2, 1),
             nn.BatchNorm2d(dim),
             nn.ReLU(True),
             nn.Conv2d(dim, dim, 4, 2, 1),
@@ -125,7 +126,7 @@ class OordEncoder(nn.Module):
 # --------------------------------------------------------------------------
 
 class OordDecoder(nn.Module):
-    def __init__(self, input_dim, dim):
+    def __init__(self, n_chan, dim):
         super().__init__()
 
         self.layers = nn.Sequential(
@@ -135,7 +136,7 @@ class OordDecoder(nn.Module):
             nn.ConvTranspose2d(dim, dim, 4, 2, 1),
             nn.BatchNorm2d(dim),
             nn.ReLU(True),
-            nn.ConvTranspose2d(dim, 1, 4, 2, 1),
+            nn.ConvTranspose2d(dim, n_chan, 4, 2, 1),
             nn.Tanh()
         )
   

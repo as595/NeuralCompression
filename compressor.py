@@ -3,8 +3,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions.normal import Normal
 from torch.distributions import kl_divergence
+from torchvision.utils import save_image
 
 import wandb
+import numpy as np
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
 
@@ -17,15 +19,15 @@ class Compressor(pl.LightningModule):
 
     """lightning module to reproduce resnet18 baseline"""
 
-    def __init__(self, model, input_shape, latent_dim, num_layers, lr):
+    def __init__(self, model, input_shape, latent_dim, lr):
 
         super().__init__()
         
         if model=='VanillaAE':
-            self.model = VanillaAE(input_shape, latent_dim, num_layers)
+            self.model = VanillaAE(input_shape, latent_dim)
             self.criterion = nn.MSELoss(reduction='none')
         elif model=='VariationalAE':
-            self.model = VariationalAE(input_shape, latent_dim, num_layers)
+            self.model = VariationalAE(input_shape, latent_dim)
             self.criterion = nn.MSELoss(reduction='none')
         elif model=='VQVAE':
             self.model = VQVAE(input_shape, latent_dim)
@@ -46,17 +48,6 @@ class Compressor(pl.LightningModule):
 
         return loss
 
-    def test_step(self, batch, batch_idx):
-
-        x_test, _ = batch
-        x_tilde = self.model(x_test)
-
-        loss = self.criterion(x_tilde, torch.squeeze(x_test)).mean()
-
-        self.log("test_loss", loss)
-
-        return
-
     def validation_step(self, batch, batch_idx):
         self._evaluate(batch, batch_idx, mode='val')
         return
@@ -72,6 +63,8 @@ class Compressor(pl.LightningModule):
             self._log_generate_images(x_test, mode)
         if mode == 'test' and batch_idx == 0:
             self._log_generate_images(x_test, mode)
+            bpd = self._bits_per_dim(batch)
+            #self.log(f'{mode}/bits_per_dim', bpd)
 
         loss, recon_loss = self._get_losses(batch)
 
@@ -84,20 +77,28 @@ class Compressor(pl.LightningModule):
 
         if mode=='test':
             # select first 15 images from test set
-            inputs = inputs[:15,:,:]
+            inputs = inputs[:15]
 
+        outputs = self.model(inputs)
+            
         size = inputs.size()[-1]
         n = inputs.size()[0]
 
-        outputs = self.model(inputs)
-        comparison = torch.cat([torch.squeeze(inputs), torch.squeeze(outputs)], dim=1)
+        nchan = inputs.size()[1]
+        imsize= inputs.size()[2]
+        
+        comparison = torch.zeros(nchan, 2*imsize, 15*imsize)
+        
+        for i in range(0,n):
+            step = i*imsize
+            comparison[:,:imsize,step:step+imsize] = inputs[i]
+            comparison[:,imsize:,step:step+imsize] = outputs[i]
 
-        temp = comparison[0,:,:]
-        for i in range(1,n):
-            temp = torch.cat([temp, torch.squeeze(comparison[i,:,:])], dim=1)
+        self.logger.log_image(key=f'{mode}/reconstructions', images=[comparison])
 
-        self.logger.log_image(key=f'{mode}/reconstructions', images=[temp])
-
+        if mode=='test':
+            save_image(comparison, 'images/reconstructions.png',nrow=1)
+            
         return
 
     def _get_losses(self, batch):
@@ -106,10 +107,25 @@ class Compressor(pl.LightningModule):
         x_tilde = self.model(x_test)
 
         loss = self.model.loss
-        recon_loss = self.criterion(torch.squeeze(x_tilde), torch.squeeze(x_test)).mean(0).sum() 
+        
+        # average over batch for each voxel then sum
+        recon_loss = self.criterion(torch.squeeze(x_tilde), torch.squeeze(x_test)).mean(0).sum()
         
         return loss, recon_loss
 
+    def _bits_per_dim(self, batch, K=512):
+    
+        x_test, _ = batch
+        x_tilde = self.model(x_test)
+        
+        recon_loss = self.criterion(torch.squeeze(x_tilde), torch.squeeze(x_test)).mean(0).sum()
+
+        n_pixel = x_test.size()[-3]*x_test.size()[-1]**2
+        bpd_const = np.log2(np.e) / n_pixel
+        bpd = ((np.log(K) * n_pixel - recon_loss) * bpd_const)
+        print(bpd)
+        
+        return bpd
 
     def configure_optimizers(self):
 

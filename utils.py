@@ -86,13 +86,14 @@ class VectorQuantization(Function):
             inputs_sqr = torch.sum(inputs_flatten ** 2, dim=1, keepdim=True)
 
             # Euclidean distance calculation:
+            # d_ij^2 = x_i^2 + x_j^2 - 2 x_i^T x_j
             distances = torch.addmm(codebook_sqr + inputs_sqr,
                 inputs_flatten, codebook.t(), alpha=-2.0, beta=1.0)
 
             # find argmin_j d_ij^2
             _, indices_flatten = torch.min(distances, dim=1)
             
-            # 
+            # reshape output
             indices = indices_flatten.view(*inputs_size[:-1])
             ctx.mark_non_differentiable(indices)
 

@@ -21,13 +21,11 @@ from encoders import Encoder, Decoder, OordEncoder, OordDecoder
 # --------------------------------------------------------------------------
 
 class VanillaAE(nn.Module):
-    def __init__(self, input_shape, latent_dim, num_layers):
+    def __init__(self, n_chan, latent_dim):
         super().__init__()
 
-        #self.encoder = Encoder(input_shape, latent_dim, num_layers)
-        #self.decoder = Decoder(input_shape, latent_dim, num_layers)
-        self.encoder = OordEncoder(input_shape, latent_dim)
-        self.decoder = OordDecoder(input_shape, latent_dim)
+        self.encoder = OordEncoder(n_chan, latent_dim)
+        self.decoder = OordDecoder(n_chan, latent_dim)
 
     def forward(self, x):
 
@@ -44,13 +42,11 @@ class VanillaAE(nn.Module):
 # --------------------------------------------------------------------------
 
 class VariationalAE(nn.Module):
-    def __init__(self, input_shape, latent_dim, num_layers):
+    def __init__(self, n_chan, latent_dim):
         super().__init__()
 
-        #self.encoder = Encoder(input_shape, 2*latent_dim, num_layers)
-        #self.decoder = Decoder(input_shape, latent_dim, num_layers)
-        self.encoder = OordEncoder(input_shape, 2*latent_dim)
-        self.decoder = OordDecoder(input_shape, latent_dim)
+        self.encoder = OordEncoder(n_chan, 2*latent_dim)
+        self.decoder = OordDecoder(n_chan, latent_dim)
 
 
     def forward(self, x):
@@ -69,8 +65,10 @@ class VariationalAE(nn.Module):
 
         q_z_x = Normal(mu, logvar.mul(.5).exp())
         p_z = Normal(torch.zeros_like(mu), torch.ones_like(logvar))
+        print(q_z_x.size(), p_z.size(), kl_divergence(q_z_x, p_z).size())
+        stop
         kl_div = kl_divergence(q_z_x, p_z).sum(1).mean()
-
+        
         return kl_div
 
 # --------------------------------------------------------------------------
@@ -101,12 +99,14 @@ class VQEmbedding(nn.Module):
 # --------------------------------------------------------------------------
 
 class VQVAE(nn.Module):
-    def __init__(self, input_shape, latent_dim, K=512):
+    def __init__(self, input_shape, latent_dim, K=512, beta=0.25):
         super().__init__()
 
         self.encoder = OordEncoder(input_shape, latent_dim)
         self.decoder = OordDecoder(input_shape, latent_dim)
         self.codebook = VQEmbedding(K, latent_dim)
+        
+        self.beta = beta # coefficient for commitment loss
         
     def encode(self, x):
         z_e_x = self.encoder(x)
@@ -133,6 +133,6 @@ class VQVAE(nn.Module):
         vq_loss = F.mse_loss(z_q_x, z_e_x.detach())
         commitment_loss = F.mse_loss(z_e_x, z_q_x.detach())
         
-        return vq_loss + commitment_loss
+        return vq_loss + self.beta*commitment_loss
 
 # --------------------------------------------------------------------------

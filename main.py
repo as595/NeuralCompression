@@ -19,7 +19,7 @@ import psutil
 from utils import parse_args, parse_config
 from compressor import Compressor
 
-from torchvision.datasets import MNIST
+from torchvision.datasets import MNIST, CIFAR10
 
 import platform
 
@@ -70,7 +70,7 @@ if __name__ == "__main__":
 			'seed': random_state
 			}
 
-	# initialise the wandb logger and name your wandb project
+	# initialise the wandb logger
 	wandb_logger = pl.loggers.WandbLogger(project='neural_compression', log_model=True, config=config)
 	wandb_config = wandb.config
 
@@ -96,6 +96,9 @@ if __name__ == "__main__":
 	if config_dict['data']['dataset']=="MNIST":
 		train_data = MNIST(root=config_dict['data']['datadir'], train=True, download=True, transform=transform)
 		test_data = MNIST(root=config_dict['data']['datadir'], train=False, download=True, transform=transform)
+	elif config_dict['data']['dataset']=="CIFAR":
+		train_data = CIFAR10(root=config_dict['data']['datadir'], train=True, download=True, transform=transform)
+		test_data = CIFAR10(root=config_dict['data']['datadir'], train=False, download=True, transform=transform)
 	else:
 		train_data = locals()[config_dict['data']['dataset']](config_dict['data']['datadir'], train=True, transform=transform)
 		test_data = locals()[config_dict['data']['dataset']](config_dict['data']['datadir'], train=False, transform=transform)
@@ -138,9 +141,8 @@ if __name__ == "__main__":
 	print("Model: {} ({})".format(config_dict['model']['model_name'], device))
 	model = Compressor(
 						config_dict['model']['model_name'],
-						np.array([config_dict['data']['imagesize'],config_dict['data']['imagesize']]),
+						config_dict['data']['nchan'],
 						config_dict['model']['latent_dim'],
-						config_dict['model']['num_layers'],
 						config_dict['optimizer']['lr'],
 						).to(device)
 
