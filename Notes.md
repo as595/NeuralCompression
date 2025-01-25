@@ -18,7 +18,10 @@ And they also say:
 or 8 x 8 x 10 for CIFAR10)*
 (Section 3.2)
 
-This second statement means that the residual blocks must have *N* hidden units (not 256) unless there is an additional FC layer after the encoder and before the decoder. I've assumed that there's no additional FC layer for now. 
+This second statement means that the residual blocks must have *N* hidden units (not 256) unless there is an additional FC layer after the encoder and before the decoder. I've assumed 
+
+ * that there's no additional FC layer;
+ * that there's a batchnorm after each conv layer.
 
 Implemented as:
 
