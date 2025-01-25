@@ -88,7 +88,7 @@ criterion = nn.MSELoss(reduction='none')
 loss = criterion(x_tilde, x_train).sum()/x_train.size(0)
 ```
 
-Note: this is the correct NLL for an image, which (assuming all pixels are independent) should be summed over the image rather than averaged. However, for astronomy images, pixels are not independent...
+Note: this is the correct NLL for an image, which (assuming all pixels are independent) should be summed over the image rather than averaged. However, for astronomy images, pixels are not independent... try: `https://pytorch.org/docs/stable/distributions.html#multivariatenormal`
 
 
 ### VQ-VAE
