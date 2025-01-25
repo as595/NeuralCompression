@@ -12,13 +12,13 @@ decoder similarly has two residual 3 × 3 blocks, followed by two transposed con
 2 and window size 4 × 4.* 
 (Section 4.1)
 
-And they also say:
+This suggests that *all* of the layers have 256 hidden units; however, they also say:
 
 *In our experiments we define N discrete latents (e.g., we use a field of 32 x 32 latents for ImageNet,
 or 8 x 8 x 10 for CIFAR10)*
 (Section 3.2)
 
-This second statement means that the residual blocks must have *N* hidden units (not 256) unless there is an additional FC layer after the encoder and before the decoder. I've assumed 
+This second statement means that the residual blocks must have *N* hidden units (not 256), **unless** there is an additional FC layer after the encoder and before the decoder. I've assumed 
 
  * that there's no additional FC layer;
  * that there's a batchnorm after each conv layer.
