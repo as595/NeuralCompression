@@ -20,6 +20,44 @@ or 8 x 8 x 10 for CIFAR10)*
 
 This second statement means that the residual blocks must have *N* hidden units (not 256) unless there is an additional FC layer after the encoder and before the decoder. I've assumed that there's no additional FC layer for now. 
 
+Implemented as:
+
+```python
+class ResBlock(nn.Module):
+    def __init__(self, dim):
+        super(ResBlock, self).__init__()
+        self.block = nn.Sequential(
+            nn.ReLU(True),
+            nn.Conv2d(dim, dim, 3, 1, 1),
+            nn.BatchNorm2d(dim),
+            nn.ReLU(True),
+            nn.Conv2d(dim, dim, 1),
+            nn.BatchNorm2d(dim)
+        )
+
+    def forward(self, x):
+        return x + self.block(x)
+
+class OordEncoder(nn.Module):
+    def __init__(self, n_chan, hidden, zdim):
+        super().__init__()
+        
+        self.layers = nn.Sequential(
+            nn.Conv2d(n_chan, hidden, 4, 2, 1),
+            nn.BatchNorm2d(hidden),
+            nn.ReLU(True),
+            nn.Conv2d(hidden, zdim, 4, 2, 1),
+            nn.BatchNorm2d(zdim),
+            ResBlock(zdim),
+            ResBlock(zdim)
+        )
+        
+    def forward(self, x):
+        return self.layers(x)
+```
+
+and similar for the decoder.
+
 ---
 
 ## Loss Functions
