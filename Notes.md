@@ -77,3 +77,18 @@ z_e_x = self.encoder(x)
 z_q_x_st, z_q_x = self.codebook.straight_through(z_e_x)
 loss_cb = F.mse_loss(z_q_x, z_e_x.detach()) # default: reduction='mean'
 ```
+
+**(2):**
+
+$$L_{\rm commitment} = \frac{1}{N_{\rm batch}} \frac{1}{N_{\rm latent}} \sum_{i=1}^{N_{\rm batch}} \sum_{j=1}^{N_{\rm latent}} (sg[z_q(x)[i,j]] - z_e(x)[i,j])^2,
+$$
+
+implemented as:
+
+```python
+import torch.nn.functional as F
+
+z_e_x = self.encoder(x)
+z_q_x_st, z_q_x = self.codebook.straight_through(z_e_x)
+loss_commit = F.mse_loss(z_e_x, z_q_x.detach())  # default: reduction='mean'
+```
