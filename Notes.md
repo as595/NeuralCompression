@@ -96,6 +96,6 @@ loss_commit = F.mse_loss(z_e_x, z_q_x.detach())  # default: reduction='mean'
 The mean reduction follows from this statement in Section 3.2:
 
 *The resulting loss L is identical, except that we get an average over N
-terms for k-means and commitment loss – one for each latent.* [sic]
+terms for k-means and commitment loss – one for each latent.* [sic.]
 
 I think this means that they average the loss over all the latents for the *codebook* and commitment loss. For CIFAR-10, there are $8\times 8\times 10$ latents, so $N_{\rm latent} = 640$.
