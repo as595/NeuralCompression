@@ -86,6 +86,8 @@ criterion = nn.MSELoss(reduction='none')
 loss = criterion(x_tilde, x_train).sum()/x_train.size(0)
 ```
 
+Test: does a reduction='mean' across each sample train better?
+
 ### VQ-VAE
 
 The loss for training the  VQ-VAE model is:
