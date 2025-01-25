@@ -57,7 +57,6 @@ class OordEncoder(nn.Module):
 ```
 
 and similar for the decoder. Where for CIFAR-10:
-
 n_chan = 3
 hidden = 256
 z_dim  = 10
