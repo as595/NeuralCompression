@@ -38,27 +38,27 @@ Performance is evaluated on a reserved test set in each case. No hyper-parameter
 
 <ins>MNIST</ins>
 
-| Model | Data | Reconstruction Loss | Example Images (top: input; bottom: output) |
-| :---:   | :---: | :---: | :---: |
-| AE | MNIST  | 0.7352 | ![alt text](./images/ae_mnist.png) |
-| VAE | MNIST | 3.18087 | ![alt text](./images/vae_mnist.png) |
-| VQ-VAE | MNIST | | ![alt text](./images/vqvae_mnist.png) |
+| Model | Data | Reconstruction Loss | bits/dim | Example Images (top: input; bottom: output) |
+| :---:   | :---: | :---: | :---: | :---: |
+| AE | MNIST  | 0.7352 | | ![alt text](./images/ae_mnist.png) |
+| VAE | MNIST | 3.18087 | | ![alt text](./images/vae_mnist.png) |
+| VQ-VAE | MNIST | | | ![alt text](./images/vqvae_mnist.png) |
 
 <ins>CIFAR-10</ins>
 
-| Model | Data | Reconstruction Loss |Example Images (top: input; bottom: output) |
-| :---:   | :---: | :---: |:---: |
-| AE | CIFAR-10  | 7.16751 | ![alt text](./images/ae_cifar.png) |
-| VAE | CIFAR-10 | | |
-| VQ-VAE | CIFAR-10 | ||  
+| Model | Data | Reconstruction Loss | bits/dim | Example Images (top: input; bottom: output) |
+| :---:   | :---: | :---: | :---: | :---: |
+| AE | CIFAR-10  | 7.16751 | | ![alt text](./images/ae_cifar.png) |
+| VAE | CIFAR-10 | | | |
+| VQ-VAE | CIFAR-10 | |||  
 
 <ins>RGZ</ins>
 
-| Model | Data | Reconstruction Loss |Example Images (top: input; bottom: output) |
-| :---:   | :---: | :---: |:---: |
-| AE | RGZ  | | ![alt text](./images/ae_mnist.png) |
-| VAE | RGZ | | |
-| VQ-VAE | RGZ | | |  
+| Model | Data | Reconstruction Loss | bits/dim | Example Images (top: input; bottom: output) |
+| :---:   | :---: | :---: |:---: | :---: |
+| AE | RGZ  | | | ![alt text](./images/ae_mnist.png) |
+| VAE | RGZ | | ||
+| VQ-VAE | RGZ | || |  
 
 ---
 
