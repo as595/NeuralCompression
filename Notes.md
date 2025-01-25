@@ -65,14 +65,15 @@ loss_recon = criterion(x_tilde, x_train).sum()/x_train.size(0)
 
 **(2):**
 
-$$L_{\rm codebook} = \frac{1}{N_{\rm batch}} \frac{1}{N_{\rm latent}} \sum_{i=1}^{N_{\rm batch}} \sum_{j=1}^{N_{\rm latent}} \sum_{k=1}^{K} (z_q(x)[i,j,k] - sg[z_e(x)[i,j,k]])^2,
+$$L_{\rm codebook} = \frac{1}{N_{\rm batch}} \frac{1}{N_{\rm latent}} \sum_{i=1}^{N_{\rm batch}} \sum_{j=1}^{N_{\rm latent}} (z_q(x)[i,j] - sg[z_e(x)[i,j]])^2,
 $$
 
 implemented as:
 
 ```python
-import torch.nn as nn
+import torch.nn.functional as F
 
-criterion = nn.MSELoss(reduction='none')
-loss_recon = criterion(x_tilde, x_train).sum()/x_train.size(0)
+z_e_x = self.encoder(x)
+z_q_x_st, z_q_x = self.codebook.straight_through(z_e_x)
+loss_cb = F.mse_loss(z_q_x, z_e_x.detach()) # default: reduction='mean'
 ```
