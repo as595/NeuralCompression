@@ -64,6 +64,8 @@ n_chan = 3
 hidden = 256
 z_dim  = 10
 
+Test: does an alternative architecture with 256 hidden units in the residual blocks and an additional FC layer give better results?
+
 ---
 
 ## Loss Functions
