@@ -72,7 +72,7 @@ Test: does an alternative architecture with 256 hidden units in the residual blo
 
 ### Vanilla AE
 
-The loss for training the Vanilla AE model is the NLL:
+The loss for training the Vanilla AE model is the NLL, $- \log p_{\theta} (\mathbf{x} | \mathbf{z})$:
 
 $$\mathcal{L} = \frac{1}{N_{\rm batch}} \sum_{i=1}^{N_{\rm batch}} \sum_{j=1}^{N_{\rm chan}} \sum_{k=1}^{N_{\rm pixels}} 0.5\times \log(2\pi) - 0.5\times (\tilde{x}[i,j,k] - x[i,j,k])^2,
 $$
