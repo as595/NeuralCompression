@@ -107,17 +107,17 @@ class ResBlock(nn.Module):
 # --------------------------------------------------------------------------
         
 class OordEncoder(nn.Module):
-    def __init__(self, n_chan, dim):
+    def __init__(self, n_chan, hidden, zdim):
         super().__init__()
         
         self.layers = nn.Sequential(
-            nn.Conv2d(n_chan, dim, 4, 2, 1),
-            nn.BatchNorm2d(dim),
+            nn.Conv2d(n_chan, hidden, 4, 2, 1),
+            nn.BatchNorm2d(hidden),
             nn.ReLU(True),
-            nn.Conv2d(dim, dim, 4, 2, 1),
-            nn.BatchNorm2d(dim),
-            ResBlock(dim),
-            ResBlock(dim)
+            nn.Conv2d(hidden, zdim, 4, 2, 1),
+            nn.BatchNorm2d(zdim),
+            ResBlock(zdim),
+            ResBlock(zdim)
         )
         
     def forward(self, x):
@@ -126,17 +126,17 @@ class OordEncoder(nn.Module):
 # --------------------------------------------------------------------------
 
 class OordDecoder(nn.Module):
-    def __init__(self, n_chan, dim):
+    def __init__(self, n_chan, hidden, zdim):
         super().__init__()
 
         self.layers = nn.Sequential(
-            ResBlock(dim),
-            ResBlock(dim),
+            ResBlock(zdim),
+            ResBlock(zdim),
             nn.ReLU(True),
-            nn.ConvTranspose2d(dim, dim, 4, 2, 1),
-            nn.BatchNorm2d(dim),
+            nn.ConvTranspose2d(zdim, hidden, 4, 2, 1),
+            nn.BatchNorm2d(hidden),
             nn.ReLU(True),
-            nn.ConvTranspose2d(dim, n_chan, 4, 2, 1),
+            nn.ConvTranspose2d(hidden, n_chan, 4, 2, 1),
             nn.Tanh()
         )
   

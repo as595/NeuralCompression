@@ -21,11 +21,22 @@ from encoders import Encoder, Decoder, OordEncoder, OordDecoder
 # --------------------------------------------------------------------------
 
 class VanillaAE(nn.Module):
-    def __init__(self, n_chan, latent_dim):
+
+    """
+    Vanilla Autoencoder 
+    Architecture follows: https://arxiv.org/pdf/1711.00937 (Sec 4.1)
+    
+    Parameters:
+        n_chan : number of inout channels
+        hidden : number of hidden units
+        latent_dim  : dimension of latent embedding space 
+    """
+
+    def __init__(self, n_chan, hidden, latent_dim):
         super().__init__()
 
-        self.encoder = OordEncoder(n_chan, latent_dim)
-        self.decoder = OordDecoder(n_chan, latent_dim)
+        self.encoder = OordEncoder(n_chan, hidden, latent_dim)
+        self.decoder = OordDecoder(n_chan, hidden, latent_dim)
 
     def forward(self, x):
 
@@ -42,12 +53,12 @@ class VanillaAE(nn.Module):
 # --------------------------------------------------------------------------
 
 class VariationalAE(nn.Module):
-    def __init__(self, n_chan, latent_dim):
+    def __init__(self, n_chan, hidden, latent_dim):
         super().__init__()
 
-        self.encoder = OordEncoder(n_chan, 2*latent_dim)
-        self.decoder = OordDecoder(n_chan, latent_dim)
-
+        self.encoder = OordEncoder(n_chan, hidden, 2*latent_dim)
+        self.decoder = OordDecoder(n_chan, hidden, latent_dim)
+        
 
     def forward(self, x):
 
@@ -65,9 +76,10 @@ class VariationalAE(nn.Module):
 
         q_z_x = Normal(mu, logvar.mul(.5).exp())
         p_z = Normal(torch.zeros_like(mu), torch.ones_like(logvar))
-        print(q_z_x.size(), p_z.size(), kl_divergence(q_z_x, p_z).size())
-        stop
-        kl_div = kl_divergence(q_z_x, p_z).sum(1).mean()
+        kl_div = kl_divergence(q_z_x, p_z).sum()/mu.size(0)
+        
+        # https://arxiv.org/pdf/1312.6114 Appendix D:
+        D_kl = -1.*(0.5*(1 + logvar - mu**2 - logvar.exp())).sum()/mu.size(0)
         
         return kl_div
 
@@ -99,11 +111,25 @@ class VQEmbedding(nn.Module):
 # --------------------------------------------------------------------------
 
 class VQVAE(nn.Module):
-    def __init__(self, input_shape, latent_dim, K=512, beta=0.25):
+
+
+    """
+    VQ-VAE
+    Architecture follows: https://arxiv.org/pdf/1711.00937 (Sec 4.1)
+    
+    Parameters:
+        n_chan : number of inout channels
+        hidden : number of hidden units
+        latent_dim  : dimension of latent embedding space 
+        K      : dimension of codebook
+        beta   : coefficient for commitment loss
+    """
+    
+    def __init__(self, n_chan, hidden, latent_dim, K=512, beta=0.25):
         super().__init__()
 
-        self.encoder = OordEncoder(input_shape, latent_dim)
-        self.decoder = OordDecoder(input_shape, latent_dim)
+        self.encoder = OordEncoder(n_chan, hidden, latent_dim)
+        self.decoder = OordDecoder(n_chan, hidden, latent_dim)
         self.codebook = VQEmbedding(K, latent_dim)
         
         self.beta = beta # coefficient for commitment loss
@@ -130,9 +156,9 @@ class VQVAE(nn.Module):
 
     def _loss(self, z_q_x, z_e_x):
 
-        vq_loss = F.mse_loss(z_q_x, z_e_x.detach())
-        commitment_loss = F.mse_loss(z_e_x, z_q_x.detach())
+        loss_cb = F.mse_loss(z_q_x, z_e_x.detach())
+        loss_commit = F.mse_loss(z_e_x, z_q_x.detach())
         
-        return vq_loss + self.beta*commitment_loss
+        return loss_cb + self.beta*loss_commit
 
 # --------------------------------------------------------------------------

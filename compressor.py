@@ -19,34 +19,40 @@ class Compressor(pl.LightningModule):
 
     """lightning module to reproduce resnet18 baseline"""
 
-    def __init__(self, model, input_shape, latent_dim, lr):
+    def __init__(self, model, n_chan, imsize, hidden, latent_dim, lr):
 
         super().__init__()
         
         if model=='VanillaAE':
-            self.model = VanillaAE(input_shape, latent_dim)
-            self.criterion = nn.MSELoss(reduction='none')
+            self.model = VanillaAE(n_chan, hidden, latent_dim)
+            self.K = (imsize/4)*latent_dim
         elif model=='VariationalAE':
-            self.model = VariationalAE(input_shape, latent_dim)
-            self.criterion = nn.MSELoss(reduction='none')
+            self.model = VariationalAE(n_chan, hidden, latent_dim)
+            self.K = int(hidden/2)
         elif model=='VQVAE':
-            self.model = VQVAE(input_shape, latent_dim)
-            self.criterion = nn.MSELoss(reduction='none')
+            self.model = VQVAE(n_chan, hidden, latent_dim)
+            self.K = 512
 
         self.lr = lr
         
+        # just used to create model summary:
+        self.example_input_array = torch.zeros(1, n_chan, imsize, imsize)
+        
+    def forward(self, x):
+        return self.model(x)
 
     def training_step(self, batch, batch_idx):
         
         x_train, _ = batch
         x_tilde = self.model(x_train)
         
-        loss = self.criterion(torch.squeeze(x_tilde), torch.squeeze(x_train)).mean(0).sum()
-        loss += self.model.loss
-
-        self.log("train_loss", loss)
-
-        return loss
+        nll, loss, recon_loss = self._get_losses(batch)
+        
+        self.log(f'train/recon', recon_loss)
+        self.log(f'train/nll', nll)
+        self.log(f'train/loss', nll+loss)
+        
+        return nll+loss
 
     def validation_step(self, batch, batch_idx):
         self._evaluate(batch, batch_idx, mode='val')
@@ -66,10 +72,11 @@ class Compressor(pl.LightningModule):
             bpd = self._bits_per_dim(batch)
             #self.log(f'{mode}/bits_per_dim', bpd)
 
-        loss, recon_loss = self._get_losses(batch)
+        nll, loss, recon_loss = self._get_losses(batch)
 
         self.log(f'{mode}/recon', recon_loss)
-        self.log(f'{mode}/loss', loss)
+        self.log(f'{mode}/nll', nll)
+        self.log(f'{mode}/loss', nll+loss)
         
         return
 
@@ -100,30 +107,43 @@ class Compressor(pl.LightningModule):
             save_image(comparison, 'images/reconstructions.png',nrow=1)
             
         return
-
+        
     def _get_losses(self, batch):
 
         x_test, _ = batch
         x_tilde = self.model(x_test)
 
+        # MSE / reconstruction loss
+        mse_loss = nn.MSELoss(reduction='none')
+        recon_loss = mse_loss(torch.squeeze(x_tilde), torch.squeeze(x_test)).sum()/x_test.size(0)
+        
+        # Negative log-likelihood
+        nll = -Normal(x_tilde, torch.ones_like(x_tilde)).log_prob(x_test).sum()/x_test.size(0)
+    
+        # model specific loss terms: 0 for AE; D_KL for VAE; codebook + commitment for VQVAE
         loss = self.model.loss
-        
-        # average over batch for each voxel then sum
-        recon_loss = self.criterion(torch.squeeze(x_tilde), torch.squeeze(x_test)).mean(0).sum()
-        
-        return loss, recon_loss
+    
+        return nll, loss, recon_loss
 
-    def _bits_per_dim(self, batch, K=512):
+    def _bits_per_dim(self, batch, model='VanillaAE'):
     
         x_test, _ = batch
+        
         x_tilde = self.model(x_test)
         
-        recon_loss = self.criterion(torch.squeeze(x_tilde), torch.squeeze(x_test)).mean(0).sum()
+        mse_loss = nn.MSELoss(reduction='none')
+        recon_loss = mse_loss(torch.squeeze(x_tilde), torch.squeeze(x_test)).sum()/x_test.size(0)
+        
+        # sum over all and then take batch average
+        nll = -Normal(x_tilde, torch.ones_like(x_tilde)).log_prob(x_test).sum()/x_test.size(0)
+        log_px = nll.item() - np.log(self.K)
+        log_px += self.model.loss # kl_d for VAE; 0 for AE
+        log_px /= np.log(2)
 
         n_pixel = x_test.size()[-3]*x_test.size()[-1]**2
         bpd_const = np.log2(np.e) / n_pixel
-        bpd = ((np.log(K) * n_pixel - recon_loss) * bpd_const)
-        print(bpd)
+        bpd = ((np.log(self.K) * n_pixel - recon_loss) * bpd_const)
+        print(log_px, bpd)
         
         return bpd
 

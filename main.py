@@ -3,11 +3,13 @@ import torch
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 from torch.utils.data import Subset
+from torchsummary import summary
 
 import wandb
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import LearningRateMonitor
+from pytorch_lightning.utilities.model_summary import ModelSummary
 
 import numpy as np
 import random
@@ -142,18 +144,22 @@ if __name__ == "__main__":
 	model = Compressor(
 						config_dict['model']['model_name'],
 						config_dict['data']['nchan'],
+						config_dict['data']['imagesize'],
+						config_dict['model']['hidden'],
 						config_dict['model']['latent_dim'],
 						config_dict['optimizer']['lr'],
 						).to(device)
 
+	summary = ModelSummary(model, max_depth=-1)
+	#print(summary)
 	
 # -----------------------------------------------------------------------------
 
 	lr_monitor = LearningRateMonitor(logging_interval='epoch')
-
-	trainer = pl.Trainer(max_epochs=config_dict['training']['num_epochs'], 
+    
+	trainer = pl.Trainer(max_epochs=config_dict['training']['num_epochs'],
 						 callbacks=[lr_monitor],
-						 num_sanity_val_steps=0, # 0 : turn off validation sanity check  
+ 						 num_sanity_val_steps=0, # 0 : turn off validation sanity check
 						 accelerator=device, 
 						 devices=1,
 						 logger=wandb_logger) 
