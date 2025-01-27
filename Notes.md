@@ -90,6 +90,29 @@ loss = criterion(x_tilde, x_train).sum()/x_train.size(0)
 
 Note: this is the correct NLL for an image, which (assuming all pixels are independent) should be summed over the image rather than averaged. However, for astronomy images, pixels are not independent... try: `https://pytorch.org/docs/stable/distributions.html#multivariatenormal`
 
+### VAE
+
+The loss for training the Variational AE model is:
+
+$$\mathcal{L} = \frac{1}{N_{\rm batch}} \sum_{i=1}^{N_{\rm batch}} D_{\rm KL} (q_{\phi}(\mathbf{z}|\mathbf{x}) || p_{\theta}(\mathbf{z}) ) - \log p_{\theta} (\mathbf{x} | \mathbf{z}),
+$$
+
+where $- \log p_{\theta} (\mathbf{x} | \mathbf{z})$ is the negative log-likelihood, and $D_{\rm KL}(q_{\phi}(\mathbf{z}|\mathbf{x}) || p_{\theta}(\mathbf{z}) )$ is the KL-divergence.
+
+This is implemented as:
+
+```python
+from torch.distributions.normal import Normal
+from torch.distributions import kl_divergence
+
+nll = -Normal(x_tilde, torch.ones_like(x_tilde)).log_prob(x).sum()/x.size(0)
+
+mu, logvar = self.encoder(x).chunk(2, dim=1)
+q_z_x = Normal(mu, logvar.mul(.5).exp())
+p_z = Normal(torch.zeros_like(mu), torch.ones_like(logvar))
+kl_div = kl_divergence(q_z_x, p_z).sum()/mu.size(0)
+
+```
 
 ### VQ-VAE
 
