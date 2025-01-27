@@ -21,6 +21,7 @@ from utils import parse_args, parse_config
 from compressor import Compressor
 
 from torchvision.datasets import MNIST, CIFAR10
+from datasets import RGZ108k
 
 import platform
 
