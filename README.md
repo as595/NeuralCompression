@@ -1,4 +1,4 @@
-# NeuralCompression
+# NeuralCompression - Under Construction
 
 Evaluation of neural methods for task-oriented compression of radio astronomy data. 
 
