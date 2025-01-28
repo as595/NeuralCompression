@@ -25,12 +25,15 @@ class Compressor(pl.LightningModule):
         
         if model=='VanillaAE':
             self.model = VanillaAE(n_chan, hidden, latent_dim)
+            self.name = 'ae'
             self.K = (imsize/4)*latent_dim
         elif model=='VariationalAE':
             self.model = VariationalAE(n_chan, hidden, latent_dim)
+            self.name = 'vae'
             self.K = int(hidden/2)
         elif model=='VQVAE':
             self.model = VQVAE(n_chan, hidden, latent_dim)
+            self.name = 'vqvae'
             self.K = 512
 
         self.lr = lr
@@ -104,7 +107,7 @@ class Compressor(pl.LightningModule):
         self.logger.log_image(key=f'{mode}/reconstructions', images=[comparison])
 
         if mode=='test':
-            save_image(comparison, 'images/reconstructions.png',nrow=1)
+            save_image(comparison, 'reconstructions.png',nrow=1)
             
         return
         
