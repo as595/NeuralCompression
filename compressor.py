@@ -51,16 +51,16 @@ class Compressor(pl.LightningModule):
         
         nll, model_loss, recon_loss = self._get_losses(batch)
         
-        self.log(f'train/recon', recon_loss)
-        self.log(f'train/nll', nll)
-        self.log(f'train/loss', nll+loss)
-        
         if self.name=='vqvae':
             # VQVAE loss uses averages of everything
             loss = nll*x_train.size(0)/x_train.numel() + model_loss
         else:
             loss = nll + model_loss
             
+        self.log(f'train/recon', recon_loss)
+        self.log(f'train/nll', nll)
+        self.log(f'train/loss', loss)
+        
         return loss
 
     def validation_step(self, batch, batch_idx):
