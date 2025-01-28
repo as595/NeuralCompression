@@ -49,8 +49,8 @@ Performance is evaluated on a reserved test set in each case. No hyper-parameter
 | Model | Data | NLL | bits/dim | Example Images (top: input; bottom: output) |
 | :---:   | :---: | :---: | :---: | :---: |
 | AE | CIFAR-10  | 2826.159 | | ![alt text](./images/ae_cifar.png) |
-| VAE | CIFAR-10 | 2902.008 | | |
-| VQ-VAE | CIFAR-10 | 2855.927 |||  
+| VAE | CIFAR-10 | 2902.008 | | ![alt text](./images/vae_cifar.png) |
+| VQ-VAE | CIFAR-10 | 2855.927 || ![alt text](./images/vqvae_cifar.png) |  
 
 <ins>RGZ</ins>
 
