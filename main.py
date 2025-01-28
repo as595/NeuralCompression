@@ -61,12 +61,12 @@ if __name__ == "__main__":
 # -----------------------------------------------------------------------------
 # lightning stuff
 
-	weight_decay = config_dict['training']['l1_regconst'] 
 	batch_size = config_dict['training']['batch_size']
 	learning_rate = config_dict['optimizer']['lr']
+    beta = config_dict['model']['beta']
 
 	config = {
-			'weight_decay': weight_decay,
+            'beta': beta,
 			'learning_rate': learning_rate,
 			'batch_size': batch_size,
 			'seed': random_state
