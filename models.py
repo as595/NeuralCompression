@@ -35,7 +35,9 @@ class VanillaAE(nn.Module):
     def __init__(self, n_chan, hidden, latent_dim):
         super().__init__()
 
-        self.encoder = OordEncoder(n_chan, hidden, latent_dim)
+        self.encoder = OordEncoder(n_chan, hidden, hidden)
+        self.to_latent_conv = nn.Conv2d(hidden, latent_dim, 1, 1, 1)
+        self.from_latent_conv = nn.ConvTranspose2d(latent_dim, hidden, 3, 1, 1)
         self.decoder = OordDecoder(n_chan, hidden, latent_dim)
 
     def forward(self, x):
@@ -53,17 +55,17 @@ class VanillaAE(nn.Module):
 # --------------------------------------------------------------------------
 
 class VariationalAE(nn.Module):
-    def __init__(self, n_chan, hidden, latent_dim):
+    def __init__(self, n_chan, hidden, latent_dim, beta=1):
         super().__init__()
 
         self.encoder = OordEncoder(n_chan, hidden, 2*latent_dim)
         self.decoder = OordDecoder(n_chan, hidden, latent_dim)
-        
+        self.beta = beta
 
     def forward(self, x):
 
         mu, logvar = self.encoder(x).chunk(2, dim=1)
-        self.loss = self._loss(mu,logvar) # KL divergence
+        self.loss = self.beta*self._loss(mu,logvar) # KL divergence
 
         noise = torch.randn_like(mu)
         z = noise * logvar.mul(.5).exp() + mu  # reparameterisation trick
@@ -78,8 +80,9 @@ class VariationalAE(nn.Module):
         p_z = Normal(torch.zeros_like(mu), torch.ones_like(logvar))
         kl_div = kl_divergence(q_z_x, p_z).sum()/mu.size(0)
         
-        # https://arxiv.org/pdf/1312.6114 Appendix D:
-        D_kl = -1.*(0.5*(1 + logvar - mu**2 - logvar.exp())).sum()/mu.size(0)
+        # https://arxiv.org/pdf/1312.6114 Appendix B
+        # verified equivalent
+        # d_kl = -1.*(0.5*(1 + logvar - mu.pow(2) - logvar.exp())).sum()/mu.size(0)
         
         return kl_div
 
@@ -128,26 +131,28 @@ class VQVAE(nn.Module):
     def __init__(self, n_chan, hidden, latent_dim, K=512, beta=0.25):
         super().__init__()
 
-        self.encoder = OordEncoder(n_chan, hidden, latent_dim)
-        self.decoder = OordDecoder(n_chan, hidden, latent_dim)
+        self.encoder = OordEncoder(n_chan, hidden, hidden)
+        self.pre_quantization_conv = nn.Conv2d(hidden,
+                                               latent_dim,
+                                               kernel_size=1,
+                                               stride=1)
         self.codebook = VQEmbedding(K, latent_dim)
+        self.post_quantization_conv = nn.ConvTranspose2d(latent_dim,
+                                                         hidden,
+                                                         kernel_size=3,            stride=1,
+                                                         padding=1)
+        self.decoder = OordDecoder(n_chan, hidden, hidden)
+        
         
         self.beta = beta # coefficient for commitment loss
         
-    def encode(self, x):
-        z_e_x = self.encoder(x)
-        latents = self.codebook(z_e_x)
-        return latents
-
-    def decode(self, latents):
-        z_q_x = self.codebook.embedding(latents).permute(0, 3, 1, 2)  # (B, D, H, W)
-        x_tilde = self.decoder(z_q_x)
-        return x_tilde
 
     def forward(self, x):
         
         z_e_x = self.encoder(x)
+        z_e_x = self.pre_quantization_conv(z_e_x)
         z_q_x_st, z_q_x = self.codebook.straight_through(z_e_x)
+        z_q_x_st = self.post_quantization_conv(z_q_x_st)
         x_tilde = self.decoder(z_q_x_st)
 
         self.loss = self._loss(z_q_x, z_e_x)
