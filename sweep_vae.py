@@ -56,6 +56,7 @@ def run_training(args):
 	batch_size = config_dict['training']['batch_size']
 	learning_rate = config_dict['optimizer']['lr']
 	beta = config_dict['model']['beta']
+	num_cpus = psutil.cpu_count(logical=True)
 
 	config = {
 			'beta': beta,
