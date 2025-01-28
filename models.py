@@ -36,13 +36,15 @@ class VanillaAE(nn.Module):
         super().__init__()
 
         self.encoder = OordEncoder(n_chan, hidden, hidden)
-        self.to_latent_conv = nn.Conv2d(hidden, latent_dim, 1, 1, 1)
-        self.from_latent_conv = nn.ConvTranspose2d(latent_dim, hidden, 3, 1, 1)
+        self.to_latent = nn.Conv2d(hidden, latent_dim, 1, 1, 1)
+        self.from_latent = nn.ConvTranspose2d(latent_dim, hidden, 3, 1, 1)
         self.decoder = OordDecoder(n_chan, hidden, hidden)
 
     def forward(self, x):
 
         x = self.encoder(x)
+        x = self.to_latent(x)
+        x = self.from_latent(x)
         x = self.decoder(x)
 
         self.loss = self._loss()
@@ -58,18 +60,22 @@ class VariationalAE(nn.Module):
     def __init__(self, n_chan, hidden, latent_dim, beta=1):
         super().__init__()
 
-        self.encoder = OordEncoder(n_chan, hidden, 2*latent_dim)
-        self.decoder = OordDecoder(n_chan, hidden, latent_dim)
+        self.encoder = OordEncoder(n_chan, hidden, hidden)
+        self.to_latent = nn.Conv2d(hidden, 2*latent_dim, 1, 1, 1)
+        self.from_latent = nn.ConvTranspose2d(latent_dim, hidden, 3, 1, 1)
+        self.decoder = OordDecoder(n_chan, hidden, hidden)
         self.beta = beta
 
     def forward(self, x):
 
-        mu, logvar = self.encoder(x).chunk(2, dim=1)
+        x = self.encoder(x)
+        mu, logvar = self.to_latent(x).chunk(2, dim=1)
         self.loss = self.beta*self._loss(mu,logvar) # KL divergence
 
         noise = torch.randn_like(mu)
         z = noise * logvar.mul(.5).exp() + mu  # reparameterisation trick
 
+        z = self.from_latent(z)
         x_tilde = self.decoder(z)
 
         return x_tilde
