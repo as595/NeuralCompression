@@ -49,7 +49,7 @@ class Compressor(pl.LightningModule):
         x_train, _ = batch
         x_tilde = self.model(x_train)
         
-        nll, model_loss, recon_loss = self._get_losses(batch)
+        nll, model_loss, recon_loss, bpd = self._get_losses(batch)
         
         if self.name=='vqvae':
             # VQVAE loss uses averages of everything
@@ -81,11 +81,12 @@ class Compressor(pl.LightningModule):
             bpd = self._bits_per_dim(batch)
             #self.log(f'{mode}/bits_per_dim', bpd)
 
-        nll, loss, recon_loss = self._get_losses(batch)
+        nll, loss, recon_loss, bpd = self._get_losses(batch)
 
         self.log(f'{mode}/recon', recon_loss)
         self.log(f'{mode}/nll', nll)
         self.log(f'{mode}/loss', nll+loss)
+        self.log(f'{mode}/bpd', bpd)
         
         return
 
@@ -131,28 +132,21 @@ class Compressor(pl.LightningModule):
     
         # model specific loss terms: 0 for AE; D_KL for VAE; codebook + commitment for VQVAE
         loss = self.model.loss
+        
+        # bits per dimension:
+        bpd = self._bits_per_dim(batch)
     
-        return nll, loss, recon_loss
+        return nll, loss, recon_loss, bpd
 
-    def _bits_per_dim(self, batch, model='VanillaAE'):
+    def _bits_per_dim(self, batch):
     
         x_test, _ = batch
-        
         x_tilde = self.model(x_test)
         
-        mse_loss = nn.MSELoss(reduction='none')
-        recon_loss = mse_loss(torch.squeeze(x_tilde), torch.squeeze(x_test)).sum()/x_test.size(0)
-        
         # sum over all and then take batch average
-        nll = -Normal(x_tilde, torch.ones_like(x_tilde)).log_prob(x_test).sum()/x_test.size(0)
-        log_px = nll.item() - np.log(self.K)
-        log_px += self.model.loss # kl_d for VAE; 0 for AE
-        log_px /= np.log(2)
-
+        ll = Normal(x_tilde, torch.ones_like(x_tilde)).log_prob(x_test).sum()/x_test.size(0)
         n_pixel = x_test.size()[-3]*x_test.size()[-1]**2
-        bpd_const = np.log2(np.e) / n_pixel
-        bpd = ((np.log(self.K) * n_pixel - recon_loss) * bpd_const)
-        print(log_px, bpd)
+        bpd = (ll+np.log(256)*n_pixel)/(np.log(2)*n_pixel)
         
         return bpd
 
