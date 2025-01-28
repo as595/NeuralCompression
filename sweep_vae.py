@@ -148,8 +148,6 @@ def run_training(args):
 if __name__ == "__main__":
 
 	args = parse_args()
-	logging.basicConfig(level=logging.INFO)
-
 	run_training(args)
 
 
