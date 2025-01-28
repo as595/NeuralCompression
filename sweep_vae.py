@@ -55,10 +55,10 @@ def run_training(args):
 	config_dict, config = parse_config(args['config'])
 	batch_size = config_dict['training']['batch_size']
 	learning_rate = config_dict['optimizer']['lr']
-    beta = config_dict['model']['beta']
+	beta = config_dict['model']['beta']
 
 	config = {
-            'beta': beta,
+			'beta': beta,
 			'learning_rate': learning_rate,
 			'batch_size': batch_size,
 			'seed': random_state
@@ -67,7 +67,7 @@ def run_training(args):
 	# initialise the wandb logger
 	wandb_logger = pl.loggers.WandbLogger(project='neural_compression', log_model=True, config=config)
 	wandb.init(project='neural_compression', config=config)  # args will be ignored by existing logger
-    wandb_config = wandb.config
+	wandb_config = wandb.config
 
 	
 	# data transforms
@@ -150,6 +150,6 @@ if __name__ == "__main__":
 	args = parse_args()
 	logging.basicConfig(level=logging.INFO)
 
-    run_training(args)
+	run_training(args)
 
 
