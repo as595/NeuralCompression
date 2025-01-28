@@ -37,7 +37,7 @@ class VanillaAE(nn.Module):
 
         self.encoder = OordEncoder(n_chan, hidden, hidden)
         self.to_latent = nn.Conv2d(hidden, latent_dim, 1, 1, 1)
-        self.from_latent = nn.ConvTranspose2d(latent_dim, hidden, 3, 1, 1)
+        self.from_latent = nn.ConvTranspose2d(latent_dim, hidden, 1, 1, 1)
         self.decoder = OordDecoder(n_chan, hidden, hidden)
 
     def forward(self, x):
@@ -62,7 +62,7 @@ class VariationalAE(nn.Module):
 
         self.encoder = OordEncoder(n_chan, hidden, hidden)
         self.to_latent = nn.Conv2d(hidden, 2*latent_dim, 1, 1, 1)
-        self.from_latent = nn.ConvTranspose2d(latent_dim, hidden, 3, 1, 1)
+        self.from_latent = nn.ConvTranspose2d(latent_dim, hidden, 1, 1, 1)
         self.decoder = OordDecoder(n_chan, hidden, hidden)
         self.beta = beta
 
@@ -140,7 +140,7 @@ class VQVAE(nn.Module):
         self.encoder = OordEncoder(n_chan, hidden, hidden)
         self.to_latent = nn.Conv2d(hidden, latent_dim, 1, 1, 1)
         self.codebook = VQEmbedding(K, latent_dim)
-        self.from_latent = nn.ConvTranspose2d(latent_dim, hidden, 3, 1, 1)
+        self.from_latent = nn.ConvTranspose2d(latent_dim, hidden, 1, 1, 1)
         self.decoder = OordDecoder(n_chan, hidden, hidden)
         
         
