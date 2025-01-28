@@ -38,7 +38,7 @@ class VanillaAE(nn.Module):
         self.encoder = OordEncoder(n_chan, hidden, hidden)
         self.to_latent_conv = nn.Conv2d(hidden, latent_dim, 1, 1, 1)
         self.from_latent_conv = nn.ConvTranspose2d(latent_dim, hidden, 3, 1, 1)
-        self.decoder = OordDecoder(n_chan, hidden, latent_dim)
+        self.decoder = OordDecoder(n_chan, hidden, hidden)
 
     def forward(self, x):
 
