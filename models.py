@@ -138,15 +138,9 @@ class VQVAE(nn.Module):
         super().__init__()
 
         self.encoder = OordEncoder(n_chan, hidden, hidden)
-        self.pre_quantization_conv = nn.Conv2d(hidden,
-                                               latent_dim,
-                                               kernel_size=1,
-                                               stride=1)
+        self.to_latent = nn.Conv2d(hidden, latent_dim, 1, 1, 1)
         self.codebook = VQEmbedding(K, latent_dim)
-        self.post_quantization_conv = nn.ConvTranspose2d(latent_dim,
-                                                         hidden,
-                                                         kernel_size=3,            stride=1,
-                                                         padding=1)
+        self.from_latent = nn.ConvTranspose2d(latent_dim, hidden, 3, 1, 1)
         self.decoder = OordDecoder(n_chan, hidden, hidden)
         
         
@@ -156,9 +150,9 @@ class VQVAE(nn.Module):
     def forward(self, x):
         
         z_e_x = self.encoder(x)
-        z_e_x = self.pre_quantization_conv(z_e_x)
+        z_e_x = self.to_latent(z_e_x)
         z_q_x_st, z_q_x = self.codebook.straight_through(z_e_x)
-        z_q_x_st = self.post_quantization_conv(z_q_x_st)
+        z_q_x_st = self.from_latent(z_q_x_st)
         x_tilde = self.decoder(z_q_x_st)
 
         self.loss = self._loss(z_q_x, z_e_x)
