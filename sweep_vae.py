@@ -133,7 +133,7 @@ def run_training(args):
 
 	lr_monitor = LearningRateMonitor(logging_interval='epoch')
 
-	trainer = pl.Trainer(max_epochs=config_dict['training']['num_epochs'],
+	trainer = pl.Trainer(max_epochs=50,
 						 callbacks=[lr_monitor],
 						 num_sanity_val_steps=0, # 0 : turn off validation sanity check
 						 accelerator=device,
