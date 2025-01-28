@@ -19,7 +19,7 @@ class Compressor(pl.LightningModule):
 
     """lightning module to reproduce resnet18 baseline"""
 
-    def __init__(self, model, n_chan, imsize, hidden, latent_dim, lr):
+    def __init__(self, model, n_chan, imsize, hidden, latent_dim, lr, beta=1):
 
         super().__init__()
         
@@ -28,11 +28,11 @@ class Compressor(pl.LightningModule):
             self.name = 'ae'
             self.K = (imsize/4)*latent_dim
         elif model=='VariationalAE':
-            self.model = VariationalAE(n_chan, hidden, latent_dim)
+            self.model = VariationalAE(n_chan, hidden, latent_dim, beta)
             self.name = 'vae'
             self.K = int(hidden/2)
         elif model=='VQVAE':
-            self.model = VQVAE(n_chan, hidden, latent_dim)
+            self.model = VQVAE(n_chan, hidden, latent_dim, beta)
             self.name = 'vqvae'
             self.K = 512
 
@@ -49,13 +49,19 @@ class Compressor(pl.LightningModule):
         x_train, _ = batch
         x_tilde = self.model(x_train)
         
-        nll, loss, recon_loss = self._get_losses(batch)
+        nll, model_loss, recon_loss = self._get_losses(batch)
         
         self.log(f'train/recon', recon_loss)
         self.log(f'train/nll', nll)
         self.log(f'train/loss', nll+loss)
         
-        return nll+loss
+        if self.name=='vqvae':
+            # VQVAE loss uses averages of everything
+            loss = nll*x_train.size(0)/x_train.numel() + model_loss
+        else:
+            loss = nll + model_loss
+            
+        return loss
 
     def validation_step(self, batch, batch_idx):
         self._evaluate(batch, batch_idx, mode='val')
