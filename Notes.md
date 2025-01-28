@@ -83,7 +83,6 @@ This is implemented as:
 
 ```python
 from torch.distributions.normal import Normal
-from torch.distributions import kl_divergence
 
 nll = -Normal(x_tilde, torch.ones_like(x_tilde)).log_prob(x).sum()/x.size(0)
 ```
@@ -116,23 +115,25 @@ kl_div = kl_divergence(q_z_x, p_z).sum()/mu.size(0)
 
 ### VQ-VAE
 
-The loss for training the  VQ-VAE model is:
+The loss for training the VQ-VAE model is:
 
 $$\mathcal{L} = L_{\rm recon} + L_{\rm codebook} + \beta \cdot L_{\rm commitment},
 $$
 
+and from the original implementation it seems that all terms are taken as the average over their respective dimensions, i.e.
+
 **(1):**
 
-$$L_{\rm recon} = \frac{1}{N_{\rm batch}} \sum_{i=1}^{N_{\rm batch}} \sum_{j=1}^{N_{\rm chan}} \sum_{k=1}^{N_{\rm pixels}} (\tilde{x}[i,j,k] - x[i,j,k])^2,
+$$L_{\rm recon} = \frac{1}{N_{\rm batch}N_{\rm chan}N_{\rm pixels}} \sum_{i=1}^{N_{\rm batch}} \sum_{j=1}^{N_{\rm chan}} \sum_{k=1}^{N_{\rm pixels}} (\tilde{x}[i,j,k] - x[i,j,k])^2,
 $$
 
 implemented as:
 
 ```python
-import torch.nn as nn
+from torch.distributions.normal import Normal
 
-criterion = nn.MSELoss(reduction='none')
-loss_recon = criterion(x_tilde, x_train).sum()/x_train.size(0)
+nll = -Normal(x_tilde, torch.ones_like(x_tilde)).log_prob(x).sum()/x.size(0)
+loss = nll*x.size(0)/x.numel()
 ```
 
 **(2):**
@@ -170,4 +171,4 @@ The mean reduction follows from this statement in Section 3.2:
 *The resulting loss L is identical, except that we get an average over N
 terms for k-means and commitment loss – one for each latent.* [sic.]
 
-I think this means that they average the loss over all the latents for the *codebook* and commitment loss. For CIFAR-10, there are $8\times 8\times 10$ latents, so $N_{\rm latent} = 640$.
+I think this means that they average the loss over all the latents for the *codebook* and commitment loss. For CIFAR-10, there are $8\times 8\times 10$ latents, so $N_{\rm latent} = 640$. This is also consistent with the tensorflow code in the [author's implementation](https://github.com/google-deepmind/sonnet/blob/v1/sonnet/python/modules/nets/vqvae.py).
