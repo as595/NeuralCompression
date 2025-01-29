@@ -53,7 +53,8 @@ class Compressor(pl.LightningModule):
         
         if self.name=='vqvae':
             # VQVAE loss uses averages of everything
-            loss = nll*x_train.size(0)/x_train.numel() + model_loss
+            #loss = nll*x_train.size(0)/x_train.numel() + model_loss
+            loss = nll + model_loss
         else:
             loss = nll + model_loss
             
